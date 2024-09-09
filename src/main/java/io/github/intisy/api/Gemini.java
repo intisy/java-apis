@@ -18,11 +18,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Gemini {
-    public static String projectId = "blizzity";
-    public static String location = "europe-west3";
-    public static String modelName = "gemini-1.5-pro-preview-0409";
-    public static ChatSession chatSession = null;
-    public static void env() throws IOException {
+    public String projectId = "blizzity";
+    public String location = "europe-west3";
+    public String modelName = "gemini-1.5-pro-preview-0409";
+    public ChatSession chatSession = null;
+    public void env() throws IOException {
         String os = System.getProperty("os.name");
         String command;
         if (os.toLowerCase().contains("windows")) {
@@ -34,7 +34,7 @@ public class Gemini {
         builder.redirectErrorStream(true);
         watch(builder.start());
     }
-    public static String prompt(Database database, String prompt) throws IOException {
+    public String prompt(Database database, String prompt) throws IOException {
         if (chatSession == null) {
             try (VertexAI vertexAI = new VertexAI(projectId, location)) {
                 GenerationConfig generationConfig =
@@ -119,7 +119,7 @@ public class Gemini {
         String text = texts[texts.length - 1];
         return text.substring(0, text.indexOf("\"\n    }"));
     }
-    private static String watch(final Process process) {
+    private String watch(final Process process) {
         StringBuilder string = new StringBuilder();
         try {
             Thread.sleep(2000);

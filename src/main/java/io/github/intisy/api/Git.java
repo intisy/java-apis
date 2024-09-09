@@ -6,6 +6,7 @@ import io.github.intisy.utils.utils.ThreadUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.io.file.PathUtils;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
@@ -23,8 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
-import static org.apache.commons.io.file.PathUtils.deleteDirectory;
 
 public class Git {
     String apiKey;
@@ -48,7 +47,7 @@ public class Git {
                 } catch (RuntimeException | TransportException e) {
                     StaticLogger.warning("Github exception while cloning repository: " + e.getMessage() + " (retrying in 5 seconds...)");
                     ThreadUtils.sleep(5000);
-                    deleteDirectory(path);
+                    PathUtils.deleteDirectory(path);
                     return cloneRepository(path, repoName, repoOwner);
                 }
             } catch (Exception e) {
@@ -86,7 +85,7 @@ public class Git {
             } catch (Exception e) {
                 StaticLogger.warning("Github exception while pulling repository: " + e.getMessage() + " (retrying in 5 seconds...)");
                 ThreadUtils.sleep(5000);
-                deleteDirectory(path);
+                PathUtils.deleteDirectory(path);
                 path.toFile().delete();
                 return cloneRepository(path, repoName, repoOwner);
             }
