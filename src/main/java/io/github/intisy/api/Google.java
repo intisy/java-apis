@@ -99,7 +99,7 @@ public class Google {
         } else
             return text;
     }
-    /*public static String translate(String text, String sourceLanguage, String targetLanguage) {
+    /*public String translate(String text, String sourceLanguage, String targetLanguage) {
         String endpoint = "https://www.googleapis.com/language/translate/v2?key=" + Secrets.GoogleKey.getKey() + "&source=" + Languages.getEnum(sourceLanguage).getCode() + "&target=" + Languages.getEnum(targetLanguage).getCode() + "&q=" + URLEncoder.encode(text);
         System.out.println(endpoint);
         HttpClient client = HttpClient.newHttpClient();

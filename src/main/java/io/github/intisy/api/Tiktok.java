@@ -19,8 +19,8 @@ import java.util.Scanner;
 @SuppressWarnings("unused")
 public class Tiktok {
 
-    private static final String AUTHORIZATION_ENDPOINT = "https://www.tiktok.com/v2/auth/authorize";
-    private static final String TOKEN_ENDPOINT = "https://open.tiktokapis.com/v2/oauth/token/";
+    private final String AUTHORIZATION_ENDPOINT = "https://www.tiktok.com/v2/auth/authorize";
+    private final String TOKEN_ENDPOINT = "https://open.tiktokapis.com/v2/oauth/token/";
     private final String clientKey;
     private final String clientSecret;
     private final String redirectUri;
@@ -29,7 +29,7 @@ public class Tiktok {
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
     }
-    /*public static void uploadVideo(File mediaFile) throws IOException, InterruptedException {
+    /*public void uploadVideo(File mediaFile) throws IOException, InterruptedException {
         uploadVideo(token(), mediaFile);
     }*/
     public void uploadVideo(String token, File mediaFile) throws IOException {
@@ -87,17 +87,17 @@ public class Tiktok {
             System.out.println("Video uploaded successfully!");
         }
     }
-    /*public static void postVideo(File mediaFile, String title) {
+    /*public void postVideo(File mediaFile, String title) {
         postVideo(mediaFile, title, "PUBLIC_TO_EVERYONE", false, false, false, 1000);
     }
-    public static void postVideo(File mediaFile, String title, String privacy_level, boolean disable_duet, boolean disable_comment, boolean disable_stitch, int video_cover_timestamp_ms) {
+    public void postVideo(File mediaFile, String title, String privacy_level, boolean disable_duet, boolean disable_comment, boolean disable_stitch, int video_cover_timestamp_ms) {
         try {
             postVideo(token(), mediaFile, title, privacy_level, String.valueOf(disable_duet), String.valueOf(disable_comment), String.valueOf(disable_stitch), String.valueOf(video_cover_timestamp_ms));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }*/
-    public static Triplet<String, String, String> info(String token) {
+    public Triplet<String, String, String> info(String token) {
         try {
             // URL for the TikTok API
             String urlString = "https://open.tiktokapis.com/v2/user/info/?fields=display_name,avatar_url,username";
@@ -141,7 +141,7 @@ public class Tiktok {
             return null;
         }
     }
-    public static void postVideo(String token, File mediaFile, String title, String privacy_level, String disable_duet, String disable_comment, String disable_stitch, String video_cover_timestamp_ms) {
+    public void postVideo(String token, File mediaFile, String title, String privacy_level, String disable_duet, String disable_comment, String disable_stitch, String video_cover_timestamp_ms) {
         try {
             long videoSize = Files.size(mediaFile.toPath());
             String data =
@@ -236,7 +236,7 @@ public class Tiktok {
         }
     }
 
-    private static String getUrl(HttpURLConnection connection) throws IOException {
+    private String getUrl(HttpURLConnection connection) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         StringBuilder response = new StringBuilder();
         String line;

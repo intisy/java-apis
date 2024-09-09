@@ -21,8 +21,8 @@ import java.util.Collections;
 
 @SuppressWarnings("deprecation")
 public class Youtube {
-    private static final String APPLICATION_NAME = "Blizzity";
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private final String APPLICATION_NAME = "Blizzity";
+    private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private final String clientId;
     private final String clientSecret;
     private final String redirectUri;
@@ -40,13 +40,13 @@ public class Youtube {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
-    public static YouTube getService(Credential credential) throws GeneralSecurityException, IOException {
+    public YouTube getService(Credential credential) throws GeneralSecurityException, IOException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
-    public static Triplet<String, String, String> info(Credential credential) throws GeneralSecurityException, IOException {
+    public Triplet<String, String, String> info(Credential credential) throws GeneralSecurityException, IOException {
         YouTube youtube = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
@@ -63,7 +63,7 @@ public class Youtube {
         String username = channel.getSnippet().getCustomUrl().substring(1);
         return new Triplet<>(profilePictureUrl, displayName, username);
     }
-    public static String id(Credential credential) throws GeneralSecurityException, IOException {
+    public String id(Credential credential) throws GeneralSecurityException, IOException {
         YouTube youtube = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
@@ -77,7 +77,7 @@ public class Youtube {
         Channel channel = channelResult.getItems().get(0);
         return channel.getId();
     }
-    public static void uploadVideo(Credential credential, File mediaFile, String title, String description, String status) {
+    public void uploadVideo(Credential credential, File mediaFile, String title, String description, String status) {
         try {
             YouTube youtubeService = getService(credential);
 
@@ -120,7 +120,7 @@ public class Youtube {
         }
     }
 
-    private static Video getVideo(String title, String description, String status) {
+    private Video getVideo(String title, String description, String status) {
         Video video = new Video();
 
         // Add the snippet object property to the Video object.

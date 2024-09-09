@@ -30,7 +30,7 @@ import java.util.zip.ZipInputStream;
 
 public class GitHub {
 
-    private static final String API_URL = "https://api.github.com";
+    private final String API_URL = "https://api.github.com";
     private final String repoOwner;
     private final String repoName;
     private final String accessToken;

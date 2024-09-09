@@ -10,7 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class Instagram {
-    public static void createContainer() {
+    public void createContainer() {
         try {
             String apiVersion = "v12.0"; // replace with your desired API version
             String igUserId = "your-ig-user-id";

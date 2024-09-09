@@ -185,7 +185,7 @@ public class Snapchat {
         }
     }
 
-    public static void multipartUpload(File file, String id, String token) {
+    public void multipartUpload(File file, String id, String token) {
         try {
             // Endpoint URL
             URL url = new URL("https://businessapi.snapchat.com/us/v1/public_profiles/" + id + "/media/123c1688-3725-452e-ade2-d89645cd2486/multipart-upload");
@@ -248,7 +248,7 @@ public class Snapchat {
             StaticLogger.exception(e);
         }
     }
-    public static void createMedia(String id, String token, String name) {
+    public void createMedia(String id, String token, String name) {
         try {
             byte[] keyBytes = new byte[32];
             SecureRandom random = new SecureRandom();
@@ -304,7 +304,7 @@ public class Snapchat {
     }
 
     // Method to convert hexadecimal string to byte array
-    public static byte[] hexStringToByteArray(String s) {
+    public byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

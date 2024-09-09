@@ -14,8 +14,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 @SuppressWarnings("resource")
 public class X {
-    private static final String REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
-    private static final String VERIFY_TOKEN_URL = "https://api.twitter.com/oauth/access_token";
+    private final String REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
+    private final String VERIFY_TOKEN_URL = "https://api.twitter.com/oauth/access_token";
     private final String consumerKey;
     private final String apiKey;
     public X(String consumerKey, String apiKey) {
@@ -51,7 +51,7 @@ public class X {
         }
         return "https://api.twitter.com/oauth/authorize?" + result;
     }
-    private static String buildAuthorizationHeader(Map<String, String> params) throws UnsupportedEncodingException {
+    private String buildAuthorizationHeader(Map<String, String> params) throws UnsupportedEncodingException {
         StringBuilder header = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (entry.getKey().startsWith("oauth_")) {
@@ -62,7 +62,7 @@ public class X {
         return header.substring(0, header.length() - 1); // Remove trailing comma
     }
 
-    private static String encodeParams(Map<String, String> params) throws UnsupportedEncodingException {
+    private String encodeParams(Map<String, String> params) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString())).append("=")
@@ -70,7 +70,7 @@ public class X {
         }
         return sb.substring(0, sb.length() - 1); // Remove trailing ampersand
     }
-    private static Map<String, String> parseKeyValueResponse(String response) throws UnsupportedEncodingException {
+    private Map<String, String> parseKeyValueResponse(String response) throws UnsupportedEncodingException {
         Map<String, String> responseMap = new HashMap<>();
         String[] keyValuePairs = response.split("&"); // Split by ampersands (&)
 
