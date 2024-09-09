@@ -1,0 +1,39 @@
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "org.openjfx.javafxplugin" version "0.0.13"
+    id "edu.sc.seis.launch4j" version "3.0.5"
+    id "io.github.intisy.github-gradle" version "1.1.6"
+    id "io.github.intisy.online-gradle" version "1.4.2"
+}
+
+dependencies {
+    githubImplementation "intisy:java-utils:1.1.7"
+    githubImplementation "intisy:simple-variables:1.8"
+    githubImplementation "intisy:simple-logger:1.14"
+    implementation "com.h2database:h2:1.4.200"
+    implementation "org.eclipse.jgit:org.eclipse.jgit:3.5.0.201409260305-r"
+    implementation "com.sparkjava:spark-core:2.9.4"
+    implementation "com.google.api-client:google-api-client:2.5.1"
+    implementation "org.json:json:20240303"
+    implementation "org.bytedeco:javacv-platform:1.5.10"
+    implementation "com.google.apis:google-api-services-youtube:v3-rev20240310-2.0.0"
+    implementation "com.google.cloud:google-cloud-vertexai:0.7.0"
+    implementation "com.google.oauth-client:google-oauth-client:1.35.0"
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "org.kohsuke:github-api:1.324"
+    implementation "com.google.oauth-client:google-oauth-client-jetty:1.35.0"
+    implementation "com.google.cloud:google-cloud-translate:2.39.0"
+    implementation "mysql:mysql-connector-java:8.0.26"
+    implementation 'com.github.docker-java:docker-java:3.3.4'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.3.4'
+    implementation "oauth.signpost:signpost-core:2.0.0"
+    implementation "oauth.signpost:signpost-commonshttp4:2.0.0"
+}
+
+online {
+    presets = [
+            "https://raw.githubusercontent.com/intisy/gradle-snippets/main/default.preset",
+            "https://raw.githubusercontent.com/intisy/gradle-snippets/main/executable.preset"
+    ]
+}
