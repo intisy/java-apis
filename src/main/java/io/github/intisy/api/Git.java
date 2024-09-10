@@ -105,6 +105,9 @@ public class Git {
         List<Ref> branches = git.branchList().call();
         if (branches.size() > 1 || !branches.get(0).getName().equals("main")) {
             StaticLogger.warning("Repository has multiple branches, might pull wrong branch...");
+            for (Ref branch : branches) {
+                StaticLogger.warning("Branch: " + branch.getName());
+            }
         }
         PullCommand pullCmd = git.pull()
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(repoOwner, apiKey))
