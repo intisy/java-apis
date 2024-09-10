@@ -6,14 +6,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.intisy.simple.logger.StaticLogger;
 import io.github.intisy.utils.custom.HttpDeleteWithBody;
+import io.github.intisy.utils.custom.VersionAsset;
 import io.github.intisy.utils.utils.EncryptorUtils;
 import io.github.intisy.utils.utils.FileUtils;
+import io.github.intisy.utils.utils.ThreadUtils;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.kohsuke.github.GHAsset;
+import org.kohsuke.github.GHRelease;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -565,6 +572,86 @@ public class GitHub {
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 HttpEntity entity = response.getEntity();
                 return EntityUtils.toString(entity);
+            }
+        }
+    }
+    public VersionAsset getAsset(String fileName) {
+        StaticLogger.debug("Searching for newest jar file from " + repoName + " assets...");
+        try {
+            // Connect to GitHub using OAuth token
+            org.kohsuke.github.GitHub github = org.kohsuke.github.GitHub.connectUsingOAuth(accessToken);
+            List<GHRelease> releases = github.getRepository(repoOwner + "/" + repoName).listReleases().toList();
+
+            // Find the release by tag name
+            GHRelease targetRelease = null;
+            double top = 0;
+            for (GHRelease release : releases) {
+                String tag = release.getTagName();
+                int divider = 1;
+                double current = 0;
+                for (String number : tag.split("\\.")) {
+                    current += Double.parseDouble(number) / divider;
+                    divider *= 1000;
+                }
+                if (current > top) {
+                    top = current;
+                    targetRelease = release;
+                }
+            }
+
+            // Get assets of the target release
+            if (targetRelease != null) {
+                List<GHAsset> assets = targetRelease.getAssets();
+                if (!assets.isEmpty()) {
+                    StaticLogger.debug("Found " + assets.size() + " asset(s) in the release");
+                    for (GHAsset asset : assets) {
+                        if (asset.getName().equals(fileName))
+                            return new VersionAsset(targetRelease.getTagName(), asset);
+                    }
+                } else {
+                    StaticLogger.warning("No assets found for the release");
+                }
+            } else{
+                StaticLogger.warning("Release not found");
+            }
+        } catch (IOException e) {
+            StaticLogger.warning("Github exception while pulling asset: " + e.getMessage() + " (retrying in 5 seconds...)");
+            ThreadUtils.sleep(5000);
+            return getAsset(fileName);
+        }
+        throw new RuntimeException("Could not find an valid asset");
+    }
+    public void jar(File direction, GHAsset asset, String repoName, String repoOwner) throws IOException {
+        String assetName = asset.getName();
+        String downloadUrl = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/releases/assets/" + asset.getId();
+        StaticLogger.note("Downloading jar file from Github assets... (" + downloadUrl + ")");
+        OkHttpClient client = new OkHttpClient();
+
+        // Build request with authorization header
+        Request request = new Request.Builder()
+                .url(downloadUrl)
+                .addHeader("Accept", "application/octet-stream")
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        // Execute the request
+        Response response = client.newCall(request).execute();
+
+        // Check for successful response
+        if (!response.isSuccessful()) {
+            StaticLogger.warning("Failed to download asset: " + response.body() + " (retrying in 5 seconds...)");
+            ThreadUtils.sleep(5000);
+            response.close();
+            jar(direction, asset, repoName, repoOwner);
+        } else {
+            // Read the response body and write to a file (replace with your logic)
+            byte[] bytes = response.body().bytes();
+            StaticLogger.success("Downloaded asset: " + assetName);
+            try (FileOutputStream fos = new FileOutputStream(direction)) {
+                fos.write(bytes); // Write bytes to the file
+                StaticLogger.success("Bytes successfully written to the file.");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
