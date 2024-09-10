@@ -550,19 +550,19 @@ public class GitHub {
         }
     }
 
-    public JsonObject getLastCommit() throws IOException {
+    public JsonElement getLastCommit() throws IOException {
         String url = String.format("%s/repos/%s/%s/commits?per_page=1", API_URL, repoOwner, repoName);
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Authorization", "token " + accessToken);
             httpGet.setHeader("Accept", "application/vnd.github.v3+json");
-            JsonObject jsonObject = null;
+            JsonElement jsonObject = null;
             while (jsonObject == null) {
                 try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                     HttpEntity entity = response.getEntity();
                     String responseString = EntityUtils.toString(entity);
-                    jsonObject = JsonParser.parseString(responseString).getAsJsonArray().get(0).getAsJsonObject();
+                    jsonObject = JsonParser.parseString(responseString);
                 } catch (NullPointerException exception) {
                     StaticLogger.error("Wrong response: " + jsonObject);
                     jsonObject = null;
