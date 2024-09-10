@@ -185,7 +185,7 @@ public class GitHub {
         File[] files = path.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isDirectory())
+                if (file.isDirectory() && !file.getName().equals(".git"))
                     deleteFolder(file, folder + "/" + file.getName());
                 else {
                     FileUtils.delete(file);
