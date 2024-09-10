@@ -164,9 +164,17 @@ public class GitHub {
     }
 
     public JsonObject deleteFolder(String folderPath) throws Exception {
+        return deleteFolder(folderPath, true);
+    }
+    public JsonObject deleteFolder(String folderPath, boolean encode) throws Exception {
         JsonObject response = null;
         StaticLogger.debug("Deleting folder: " + folderPath.substring(1), debug);
-        JsonArray files = getFilesInFolder(EncryptorUtils.encode(folderPath, "/"));
+        String encryptedFilePath;
+        if (encode)
+            encryptedFilePath = EncryptorUtils.encode(folderPath, "/");
+        else
+            encryptedFilePath = folderPath;
+        JsonArray files = getFilesInFolder(encryptedFilePath);
         for (int i = 0; i < files.size(); i++) {
             JsonObject fileObject = files.get(i).getAsJsonObject();
             String filePath = fileObject.get("path").getAsString();
@@ -176,9 +184,12 @@ public class GitHub {
     }
 
     public void deleteFolder(File path) throws Exception {
-        deleteFolder(path, "");
+        deleteFolder(path, "", true);
     }
-    public void deleteFolder(File path, String folder) throws Exception {
+    public void deleteFolder(File path, boolean encode) throws Exception {
+        deleteFolder(path, "", encode);
+    }
+    public void deleteFolder(File path, String folder, boolean encode) throws Exception {
         if (!folder.isEmpty()) {
             StaticLogger.debug("Deleting folder: " + folder.substring(1), debug);
         }
@@ -186,11 +197,11 @@ public class GitHub {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    deleteFolder(file, folder + "/" + file.getName());
+                    deleteFolder(file, folder + "/" + file.getName(), encode);
                 } else {
                     FileUtils.delete(file);
                     if (!file.getAbsolutePath().contains(".git")) {
-                        deleteFile(folder + "/" + file.getName());
+                        deleteFile(folder + "/" + file.getName(), encode);
                     }
                 }
             }
