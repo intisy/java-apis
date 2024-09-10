@@ -41,9 +41,10 @@ public class Git {
             org.eclipse.jgit.api.Git git = org.eclipse.jgit.api.Git.open(path);
             Status status = git.status().call();
             changes.get("added").addAll(status.getAdded());
+            changes.get("added").addAll(status.getUntracked());
             changes.get("modified").addAll(status.getModified());
             changes.get("deleted").addAll(status.getRemoved());
-            changes.get("untracked").addAll(status.getUntracked());
+            changes.get("deleted").addAll(status.getMissing());
 
             git.close();
         } catch (IOException | GitAPIException e) {
