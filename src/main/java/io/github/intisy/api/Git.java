@@ -28,7 +28,10 @@ public class Git {
         this.repoOwner = repoOwner;
         this.path = path;
     }
-    public static Map<String, Set<String>> getAllChanges(String repoPath) {
+    public GitHub getGitHub() {
+        return new GitHub(apiKey, repoOwner, repoName, false);
+    }
+    public Map<String, Set<String>> getAllChanges(String repoPath) {
         Map<String, Set<String>> changes = new HashMap<>();
         changes.put("added", new HashSet<>());
         changes.put("modified", new HashSet<>());
