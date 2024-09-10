@@ -185,16 +185,16 @@ public class GitHub {
         File[] files = path.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isDirectory() && !file.getName().equals(".git"))
-                    deleteFolder(file, folder + "/" + file.getName());
-                else {
+                if (file.isDirectory()) {
+                    if (!file.getName().equals(".git"))
+                        deleteFolder(file, folder + "/" + file.getName());
+                    FileUtils.delete(path);
+                } else {
                     FileUtils.delete(file);
                     deleteFile(folder + "/" + file.getName());
                 }
             }
         }
-        if (!folder.isEmpty())
-            FileUtils.delete(path);
     }
 
     private JsonArray getFilesInFolder(String folderPath) throws IOException {
