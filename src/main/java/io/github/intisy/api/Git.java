@@ -29,7 +29,7 @@ public class Git {
         this.path = path;
     }
     public GitHub getGitHub() {
-        return new GitHub(apiKey, repoOwner, repoName, false);
+        return new GitHub(repoOwner, repoName, apiKey, false);
     }
     public Map<String, Set<String>> getAllChanges() {
         Map<String, Set<String>> changes = new HashMap<>();
