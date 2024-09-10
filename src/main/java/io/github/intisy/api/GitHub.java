@@ -195,6 +195,7 @@ public class GitHub {
                 }
             }
         }
+        FileUtils.delete(path);
     }
 
     private JsonArray getFilesInFolder(String folderPath) throws IOException {
