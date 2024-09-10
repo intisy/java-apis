@@ -29,7 +29,7 @@ public class Git {
         this.path = path;
     }
     public GitHub getGitHub() {
-        return new GitHub(repoOwner, repoName, apiKey, false);
+        return new GitHub(repoOwner, repoName, apiKey, true);
     }
     public Map<String, Set<String>> getAllChanges() {
         Map<String, Set<String>> changes = new HashMap<>();
@@ -59,9 +59,7 @@ public class Git {
                 return commit.getName();
             }
             git.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
         return null;
     }
     public void cloneRepository() throws GitAPIException {
@@ -103,26 +101,15 @@ public class Git {
         Repository repository = org.eclipse.jgit.api.Git.open(path).getRepository();
         org.eclipse.jgit.api.Git git = new org.eclipse.jgit.api.Git(repository);
         git.fetch().setCredentialsProvider(credentialsProvider).call();
-        String currentBranch = repository.getBranch();
-        List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-        boolean updateAvailable = false;
-        for (Ref remoteBranch : remoteBranches) {
-            if (remoteBranch.getName().endsWith(currentBranch)) {
-                updateAvailable = repository.resolve(remoteBranch.getName() + "^{commit}") != null;
-                break;
-            }
-        }
-        if (updateAvailable) {
-            PullCommand pullCmd = git.pull()
-                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(repoOwner, apiKey))
-                    .setRemoteBranchName("main");
-            StaticLogger.note("Pulling Repository...");
-            PullResult result = pullCmd.call();
-            if (!result.isSuccessful()) {
-                StaticLogger.error("Pull failed: " + result);
-            } else {
-                StaticLogger.success("Successfully pulled repository.");
-            }
+        PullCommand pullCmd = git.pull()
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(repoOwner, apiKey))
+                .setRemoteBranchName("main");
+        StaticLogger.note("Pulling Repository...");
+        PullResult result = pullCmd.call();
+        if (!result.isSuccessful()) {
+            StaticLogger.error("Pull failed: " + result);
+        } else {
+            StaticLogger.success("Successfully pulled repository.");
         }
     }
 }
