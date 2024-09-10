@@ -31,15 +31,14 @@ public class Git {
     public GitHub getGitHub() {
         return new GitHub(apiKey, repoOwner, repoName, false);
     }
-    public Map<String, Set<String>> getAllChanges(String repoPath) {
+    public Map<String, Set<String>> getAllChanges() {
         Map<String, Set<String>> changes = new HashMap<>();
         changes.put("added", new HashSet<>());
         changes.put("modified", new HashSet<>());
         changes.put("deleted", new HashSet<>());
         changes.put("untracked", new HashSet<>());
         try {
-            File repoDir = new File(repoPath);
-            org.eclipse.jgit.api.Git git = org.eclipse.jgit.api.Git.open(repoDir);
+            org.eclipse.jgit.api.Git git = org.eclipse.jgit.api.Git.open(path);
             Status status = git.status().call();
             changes.get("added").addAll(status.getAdded());
             changes.get("modified").addAll(status.getModified());
