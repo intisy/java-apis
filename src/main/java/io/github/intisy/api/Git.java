@@ -104,7 +104,7 @@ public class Git {
         git.fetch().setCredentialsProvider(credentialsProvider).call();
         PullCommand pullCmd = git.pull()
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(repoOwner, apiKey))
-                .setRemoteBranchName("main");
+                .setRemoteBranchName(git.branchList().call().get(0).getName());
         StaticLogger.note("Pulling Repository...");
         PullResult result = pullCmd.call();
         if (!result.isSuccessful()) {
