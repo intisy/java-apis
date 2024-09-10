@@ -22,7 +22,7 @@ public class Git {
     String repoName;
     String repoOwner;
     File path;
-    public Git(String apiKey, String repoName, String repoOwner, File path) {
+    public Git(String repoOwner, String repoName, String apiKey, File path) {
         this.apiKey = apiKey;
         this.repoName = repoName;
         this.repoOwner = repoOwner;
