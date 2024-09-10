@@ -188,11 +188,10 @@ public class GitHub {
                 if (file.isDirectory()) {
                     if (!file.getName().equals(".git"))
                         deleteFolder(file, folder + "/" + file.getName());
-                    FileUtils.delete(path);
                 } else {
-                    FileUtils.delete(file);
                     deleteFile(folder + "/" + file.getName());
                 }
+                FileUtils.delete(file);
             }
         }
     }
