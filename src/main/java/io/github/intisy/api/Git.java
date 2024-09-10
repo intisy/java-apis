@@ -102,13 +102,17 @@ public class Git {
         Repository repository = org.eclipse.jgit.api.Git.open(path).getRepository();
         org.eclipse.jgit.api.Git git = new org.eclipse.jgit.api.Git(repository);
         git.fetch().setCredentialsProvider(credentialsProvider).call();
+        List<Ref> branches = git.branchList().call();
+        if (branches.size() > 1 || !branches.get(0).getName().equals("main")) {
+            StaticLogger.warning("Repository has multiple branches, might pull wrong branch...");
+        }
         PullCommand pullCmd = git.pull()
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(repoOwner, apiKey))
-                .setRemoteBranchName(git.branchList().call().get(0).getName());
-        StaticLogger.note("Pulling Repository...");
+                .setRemoteBranchName(branches.get(0).getName());
+        StaticLogger.note("Pulling Repository branch" + branches.get(0).getName());
         PullResult result = pullCmd.call();
         if (!result.isSuccessful()) {
-            StaticLogger.error("Pull failed: " + result);
+            StaticLogger.error("Pull failed: " + branches.get(0).getName());
         } else {
             StaticLogger.success("Successfully pulled repository.");
         }
