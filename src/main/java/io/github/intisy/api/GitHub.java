@@ -516,7 +516,7 @@ public class GitHub {
 
     public JsonArray getCommitsSince(String commitSha) throws IOException {
         JsonArray commitsArray = new JsonArray();
-        JsonObject commit = getLastCommit();
+        JsonObject commit = getLastCommit().getAsJsonArray().get(0).getAsJsonObject();
         if (!commit.get("sha").getAsString().equals(commitSha)) {
             String parent;
             while (!(parent = commit.get("parents").getAsJsonArray().get(0).getAsJsonObject().get("sha").getAsString()).equals(commitSha)) {

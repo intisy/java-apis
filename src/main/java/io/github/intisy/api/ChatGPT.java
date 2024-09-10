@@ -21,19 +21,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents a ChatGPT instance that can be used to interact with the OpenAI API.
+ */
 public class ChatGPT {
     String apiKey;
+
+    /**
+     * Constructs a ChatGPT instance with the given API key.
+     *
+     * @param apiKey The API key for accessing the OpenAI API.
+     */
     ChatGPT(String apiKey) {
         this.apiKey = apiKey;
     }
+
+    /**
+     * Sends a prompt to the ChatGPT model and returns the response.
+     *
+     * @param database The database instance to store and retrieve previous prompts.
+     * @param prompt   The prompt to send to the ChatGPT model.
+     * @return The response from the ChatGPT model.
+     */
     public String prompt(Database database, String prompt) {
+        // Retrieve previous prompts from the database
         List<String> prompts = database.quickSelectData("server", "value", "token", "prompts");
         JSONArray messageList;
+
+        // Initialize message list with previous prompts if available
         if (prompts.isEmpty()) {
             messageList = new JSONArray();
         } else {
             messageList = new JSONArray(prompts.get(0));
         }
+
+        // Add the current prompt to the message list
         JSONObject message = new JSONObject();
         message.put("role", "user");
         message.put("content", prompt);
@@ -45,7 +67,7 @@ public class ChatGPT {
         payload.put("model", "gpt-3.5-turbo"); // model is important
         payload.put("messages", messageList);
         payload.put("temperature", 0.9);
-        payload.put("top_p", 0.5); //experimental
+        payload.put("top_p", 0.5); // experimental
 
         StringEntity inputEntity = new StringEntity(payload.toString(), ContentType.APPLICATION_JSON);
 
@@ -74,6 +96,7 @@ public class ChatGPT {
             }
             JSONObject resJson = new JSONObject(resJsonString);
 
+            // Handle API errors
             if (resJson.has("error")) {
                 String errorMsg = resJson.getString("error");
                 StaticLogger.error("Chatbot API error: " + errorMsg);
@@ -98,10 +121,13 @@ public class ChatGPT {
             message.put("role", "assistant");
             message.put("content", jsonResponse);
             messageList.put(message);
+
+            // Update the database with the new prompt and response
             if (database.quickSelectData("server", "token", "token", "prompts").isEmpty())
                 database.insertData("server", "token", "prompts", "value", messageList.toString());
             else
                 database.updateData("server", "token", "prompts", "value", messageList.toString());
+
             return jsonResponse;
         } catch (IOException | JSONException e) {
             StaticLogger.error("Error sending request:" + e.getMessage());
