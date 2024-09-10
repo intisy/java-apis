@@ -177,6 +177,8 @@ public class GitHub {
 
     public void deleteFolder(File path) throws Exception {
         deleteFolder(path, "");
+        FileUtils.delete(path);
+        FileUtils.delete(path.toPath().resolve(".git").toFile());
     }
     public void deleteFolder(File path, String folder) throws Exception {
         if (!folder.isEmpty()) {
@@ -186,12 +188,14 @@ public class GitHub {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    if (!file.getName().equals(".git"))
+                    if (!file.getName().equals(".git")) {
                         deleteFolder(file, folder + "/" + file.getName());
+                        FileUtils.delete(file);
+                    }
                 } else {
+                    FileUtils.delete(file);
                     deleteFile(folder + "/" + file.getName());
                 }
-                FileUtils.delete(file);
             }
         }
     }
