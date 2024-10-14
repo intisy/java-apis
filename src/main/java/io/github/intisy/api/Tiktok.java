@@ -18,7 +18,6 @@ import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class TikTok {
-
     private final String AUTHORIZATION_ENDPOINT = "https://www.tiktok.com/v2/auth/authorize";
     private final String TOKEN_ENDPOINT = "https://open.tiktokapis.com/v2/oauth/token/";
     private final String clientKey;
