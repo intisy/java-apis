@@ -17,11 +17,11 @@ import java.nio.file.Files;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
-public class TikTok {
+public class Tiktok {
     private final String clientKey;
     private final String clientSecret;
     private final String redirectUri;
-    public TikTok(String clientKey, String clientSecret, String redirectUri) {
+    public Tiktok(String clientKey, String clientSecret, String redirectUri) {
         this.clientKey = clientKey;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
