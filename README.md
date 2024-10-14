@@ -1,6 +1,6 @@
 # 
 
-Archives containing JAR files are available as [releases](https://github.com/intisy/intisy/java-apis/releases).
+Archives containing JAR files are available as [releases](https://github.com/intisy/java-apis/releases).
 
 ## Usage in private repos (faster)
 
@@ -8,13 +8,13 @@ Archives containing JAR files are available as [releases](https://github.com/int
 ```xml
   <repository>
       <id>github</id>
-      <url>https://maven.pkg.github.com/intisy/intisy/java-apis</url>
+      <url>https://maven.pkg.github.com/intisy/java-apis</url>
       <snapshots><enabled>true</enabled></snapshots>
   </repository>
   <dependency>
       <groupId>io.github.intisy</groupId>
-      <artifactId>intisy/java-apis</artifactId>
-      <version>1.2.19</version>
+      <artifactId>java-apis</artifactId>
+      <version>1.2.23</version>
   </dependency>
 ```
 
@@ -23,8 +23,8 @@ Archives containing JAR files are available as [releases](https://github.com/int
   <servers>
       <server>
           <id>github</id>
-          <username><your-username></username>
-          <password><your-access-token></password>
+          <username>your-username</username>
+          <password>your-access-token</password>
       </server>
   </servers>
 ```
@@ -33,7 +33,7 @@ Archives containing JAR files are available as [releases](https://github.com/int
 ```groovy
   repositories {
       maven {
-          url "https://maven.pkg.github.com/intisy/intisy/java-apis"
+          url "https://maven.pkg.github.com/intisy/java-apis"
           credentials {
               username = "<your-username>"
               password = "<your-access-token>"
@@ -41,7 +41,7 @@ Archives containing JAR files are available as [releases](https://github.com/int
       }
   }
   dependencies {
-      implementation 'io.github.intisy:intisy/java-apis:1.2.19'
+      implementation 'io.github.intisy:java-apis:1.2.23'
   }
 ```
 
@@ -50,10 +50,10 @@ Archives containing JAR files are available as [releases](https://github.com/int
  * Gradle (inside the  or  file)
 ```groovy
   plugins {
-      id "io.github.intisy.github-gradle" version "1.1"
+      id "io.github.intisy.java-apis" version "1.2.23"
   }
   dependencies {
-      githubImplementation "intisy:intisy/java-apis:1.2.19"
+      githubImplementation "intisy:java-apis:1.2.23"
   }
 ```
 
