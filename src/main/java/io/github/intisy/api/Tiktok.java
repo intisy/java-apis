@@ -18,8 +18,6 @@ import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class TikTok {
-    private final String AUTHORIZATION_ENDPOINT = "https://www.tiktok.com/v2/auth/authorize";
-    private final String TOKEN_ENDPOINT = "https://open.tiktokapis.com/v2/oauth/token/";
     private final String clientKey;
     private final String clientSecret;
     private final String redirectUri;
@@ -28,9 +26,6 @@ public class TikTok {
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
     }
-    /*public void uploadVideo(File mediaFile) throws IOException, InterruptedException {
-        uploadVideo(token(), mediaFile);
-    }*/
     public void uploadVideo(String token, File mediaFile) throws IOException {
         long videoSize = Files.size(mediaFile.toPath());
         String data = "{\"source_info\": { \"source\": \"FILE_UPLOAD\", \"video_size\": " + videoSize +
@@ -143,23 +138,23 @@ public class TikTok {
     public void postVideo(String token, File mediaFile, String title, String privacy_level, String disable_duet, String disable_comment, String disable_stitch, String video_cover_timestamp_ms) {
         try {
             long videoSize = Files.size(mediaFile.toPath());
-            String data =
+            String data/* =
                     "{" +
-                        "\"post_info\": {" +
+                            "\"post_info\": {" +
                             "\"title\": \"" + title + "\", " +
                             "\"privacy_level\": \"" + privacy_level + "\", " +
                             "\"disable_duet\": " + disable_duet + ", " +
                             "\"disable_comment\": " + disable_comment + ", " +
                             "\"disable_stitch\": " + disable_stitch + ", " +
                             "\"video_cover_timestamp_ms\": " + video_cover_timestamp_ms +
-                        "}," +
+                            "}," +
                             "\"source_info\": {" +
                             "\"source\": \"FILE_UPLOAD\"," +
                             "\"video_size\": " + videoSize + "," +
                             "\"chunk_size\": " + videoSize + "," +
                             "\"total_chunk_count\": 1" +
-                        "}" +
-                    "}";
+                            "}" +
+                            "}"*/;
             data = "{\n" +
                     "  \"post_info\": {\n" +
                     "    \"title\": \"this will be a funny #cat video on your @tiktok #fyp\",\n" +
@@ -255,16 +250,18 @@ public class TikTok {
     }
 
     public String generateAuthorizationUrl(String scopes) throws UnsupportedEncodingException {
+        String AUTHORIZATION_ENDPOINT = "https://www.tiktok.com/v2/auth/authorize";
         return AUTHORIZATION_ENDPOINT +
-                "?client_key=" + URLEncoder.encode(clientKey, StandardCharsets.UTF_8.toString().toString()) +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString().toString()) +
+                "?client_key=" + URLEncoder.encode(clientKey, StandardCharsets.UTF_8.toString()) +
+                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString()) +
                 "&response_type=code" +
-                "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8.toString().toString());
+                "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8.toString());
     }
     public String createRefreshToken(String authorizationCode) throws IOException {
         String urlParameters = buildFormData(authorizationCode);
         byte[] postDataBytes = urlParameters.getBytes();
 
+        String TOKEN_ENDPOINT = "https://open.tiktokapis.com/v2/oauth/token/";
         URL url = URI.create(TOKEN_ENDPOINT).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
@@ -293,12 +290,11 @@ public class TikTok {
     }
 
     private String buildFormData(String authorizationCode) throws UnsupportedEncodingException {
-        String formData = "grant_type=authorization_code" +
+        return "grant_type=authorization_code" +
                 "&code=" + authorizationCode +
-                "&client_key=" + URLEncoder.encode(clientKey, StandardCharsets.UTF_8.toString().toString()) +
-                "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8.toString().toString()) +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString().toString());
-        return formData;
+                "&client_key=" + URLEncoder.encode(clientKey, StandardCharsets.UTF_8.toString()) +
+                "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8.toString()) +
+                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString());
     }
     public String refreshAccessToken(String refreshToken) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL("https://open.tiktokapis.com/v2/oauth/token/").openConnection();
@@ -313,7 +309,7 @@ public class TikTok {
                 "&refresh_token=" + refreshToken;
 
         try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8.toString());
+            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
             outputStream.write(postDataBytes, 0, postDataBytes.length);
         }
 

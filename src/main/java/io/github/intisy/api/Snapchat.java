@@ -3,6 +3,7 @@ package io.github.intisy.api;
 import io.github.intisy.simple.logger.StaticLogger;
 import io.github.intisy.utils.custom.Triplet;
 import io.github.intisy.utils.utils.ConnectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,6 +18,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
+@SuppressWarnings("unused")
 public class Snapchat {
     String AUTHORIZATION_ENDPOINT = "https://accounts.snapchat.com/login/oauth2/authorize";
     String clientId;
@@ -31,20 +33,10 @@ public class Snapchat {
     }
     public String refreshAccessToken(String refreshToken) throws IOException {
         String url = "https://accounts.snapchat.com/login/oauth2/access_token";
-        String postData = "refresh_token=" + refreshToken +
+        HttpURLConnection connection = getHttpURLConnection("refresh_token=" + refreshToken +
                 "&client_id=" + clientId +
                 "&client_secret=" + clientSecret +
-                "&grant_type=refresh_token";
-
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        connection.setDoOutput(true);
-
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8.toString());
-            outputStream.write(postDataBytes, 0, postDataBytes.length);
-        }
+                "&grant_type=refresh_token", url);
 
         StringBuilder response = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -58,12 +50,29 @@ public class Snapchat {
         int end = response.indexOf("\"", start);
         return response.substring(start, end);
     }
+
+    @NotNull
+    private HttpURLConnection getHttpURLConnection(String refreshToken, String url) throws IOException {
+        String postData = refreshToken;
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        connection.setDoOutput(true);
+
+        try (OutputStream outputStream = connection.getOutputStream()) {
+            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
+            outputStream.write(postDataBytes, 0, postDataBytes.length);
+        }
+        return connection;
+    }
+
     public String generateAuthorizationUrl(String scopes) throws UnsupportedEncodingException {
         return AUTHORIZATION_ENDPOINT +
                 "?client_id=" + clientId +
                 "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString()) +
                 "&response_type=code" +
-                "&scope=" + URLEncoder.encode(scopes);
+                "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8.toString());
     }
     public Triplet<String, String, String> info(String token) throws IOException {
         String url = "https://businessapi.snapchat.com/v1/organizations/" + organizationId + "/public_profiles?limit=1";
@@ -115,21 +124,11 @@ public class Snapchat {
     }
     public String createRefreshToken(String code) throws IOException {
         String url = "https://accounts.snapchat.com/login/oauth2/access_token";
-        String postData = "grant_type=authorization_code" +
+        HttpURLConnection connection = getHttpURLConnection("grant_type=authorization_code" +
                 "&client_id=" + clientId +
                 "&client_secret=" + clientSecret +
                 "&code=" + code +
-                "&redirect_uri=" + redirectUri;
-
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        connection.setDoOutput(true);
-
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8.toString());
-            outputStream.write(postDataBytes, 0, postDataBytes.length);
-        }
+                "&redirect_uri=" + redirectUri, url);
 
         StringBuilder response = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -144,32 +143,19 @@ public class Snapchat {
     }
     public void postSpotlight(String id, String token, String media) {
         try {
-            // Endpoint URL
             URL url = new URL("https://businessapi.snapchat.com/v1/public_profiles/" + id + "/spotlights");
-
-            // Open connection
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-            // Set request method
             con.setRequestMethod("POST");
-
-            // Set request headers
             con.setRequestProperty("Authorization", "Bearer " + token);
             con.setRequestProperty("Content-Type", "application/json");
-
-            // Enable output and set request body
             con.setDoOutput(true);
             DataOutputStream out = new DataOutputStream(con.getOutputStream());
             String postData = "{\"media_id\":\"" + media + "\", \"skip_save_to_profile\":false, \"description\":\"hello #world\", \"locale\":\"en_US\"}";
             out.writeBytes(postData);
             out.flush();
             out.close();
-
-            // Get response code
             int responseCode = con.getResponseCode();
             System.out.println("Response Code: " + responseCode);
-
-            // Read response
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -177,9 +163,7 @@ public class Snapchat {
                 response.append(inputLine);
             }
             in.close();
-
-            // Print response
-            System.out.println("Response: " + response.toString());
+            System.out.println("Response: " + response);
         } catch (Exception e) {
             StaticLogger.exception(e);
         }
@@ -203,7 +187,7 @@ public class Snapchat {
             // Enable output and set request body
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8.toString()));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
             // Add form fields
             writer.write("--BoundaryString\r\n");
@@ -243,7 +227,7 @@ public class Snapchat {
             in.close();
 
             // Print response
-            System.out.println("Response: " + response.toString());
+            System.out.println("Response: " + response);
         } catch (IOException e) {
             StaticLogger.exception(e);
         }
@@ -279,7 +263,7 @@ public class Snapchat {
             connection.setDoOutput(true);
 
             try (OutputStream outputStream = connection.getOutputStream()) {
-                byte[] input = payload.toString().getBytes(StandardCharsets.UTF_8.toString());
+                byte[] input = payload.toString().getBytes(StandardCharsets.UTF_8);
                 outputStream.write(input, 0, input.length);
             }
 
