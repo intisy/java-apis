@@ -13,44 +13,56 @@ import io.github.intisy.utils.custom.Triplet;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unused"})
 public class Youtube {
     private final String applicationName;
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private final YouTube youtube;
-    public Youtube(String applicationName, String clientId, String clientSecret, String redirectUri, Collection<String> scopes) throws GeneralSecurityException, IOException {
+    public Youtube(String applicationName, String clientId, String clientSecret, String redirectUri, Collection<String> scopes) {
         this.applicationName = applicationName;
         youtube = getService(clientId, clientSecret, redirectUri, scopes);
     }
-    public Youtube(String applicationName, Google google) throws GeneralSecurityException, IOException {
+    public Youtube(String applicationName, Google google) {
         this.applicationName = applicationName;
         youtube = getService(google);
     }
-    public YouTube getService(String clientId, String clientSecret, String redirectUri, Collection<String> scopes) throws GeneralSecurityException, IOException {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        Credential credential = new Google(clientId, clientSecret, redirectUri, scopes).authorize(httpTransport);
-        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(applicationName)
-                .build();
+    public YouTube getService(String clientId, String clientSecret, String redirectUri, Collection<String> scopes) {
+        try {
+            final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            Credential credential = new Google(clientId, clientSecret, redirectUri, scopes).authorize(httpTransport);
+            return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
+                    .setApplicationName(applicationName)
+                    .build();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
-    public YouTube getService(Google google) throws GeneralSecurityException, IOException {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        Credential credential = google.authorize(httpTransport);
-        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(applicationName)
-                .build();
+    public YouTube getService(Google google) {
+        try {
+            final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            Credential credential = google.authorize(httpTransport);
+            return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
+                    .setApplicationName(applicationName)
+                    .build();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
-    public YouTube getService(Credential credential) throws GeneralSecurityException, IOException {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(applicationName)
-                .build();
+    public YouTube getService(Credential credential) {
+        try {
+            final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
+                    .setApplicationName(applicationName)
+                    .build();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
     public Triplet<String, String, String> info(Credential credential) throws GeneralSecurityException, IOException {
         YouTube youtube = new YouTube.Builder(
@@ -92,7 +104,7 @@ public class Youtube {
 
             InputStreamContent mediaContent =
                     new InputStreamContent("application/octet-stream",
-                            new BufferedInputStream(new FileInputStream(mediaFile)));
+                            new BufferedInputStream(Files.newInputStream(mediaFile.toPath())));
             mediaContent.setLength(mediaFile.length());
 
             // Define and execute the API request
@@ -100,7 +112,7 @@ public class Youtube {
                     .insert(Collections.singletonList("snippet,status"), video, mediaContent);
             Video response = request.execute();
             System.out.println(response);
-        } catch (GeneralSecurityException | IOException exception) {
+        } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
@@ -111,7 +123,7 @@ public class Youtube {
 
             InputStreamContent mediaContent =
                     new InputStreamContent("application/octet-stream",
-                            new BufferedInputStream(new FileInputStream(mediaFile)));
+                            new BufferedInputStream(Files.newInputStream(mediaFile.toPath())));
             mediaContent.setLength(mediaFile.length());
 
             // Define and execute the API request
