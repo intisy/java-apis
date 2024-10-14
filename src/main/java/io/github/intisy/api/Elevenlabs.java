@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
+@SuppressWarnings("unused")
 public class Elevenlabs {
     String apiKey;
     public Elevenlabs(String apiKey) {

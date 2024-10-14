@@ -7,15 +7,17 @@ import java.util.*;
 import java.net.URLEncoder;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("resource")
+@SuppressWarnings({"resource", "unused"})
 public class X {
-    private final String REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
-    private final String VERIFY_TOKEN_URL = "https://api.twitter.com/oauth/access_token";
     private final String consumerKey;
     private final String apiKey;
     public X(String consumerKey, String apiKey) {
@@ -23,12 +25,7 @@ public class X {
         this.apiKey = apiKey;
     }
     public String createRefreshToken(String code, String verifier) throws Exception {
-        OAuthConsumer consumer = new CommonsHttpOAuthConsumer(consumerKey, apiKey);
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet request = new HttpGet(VERIFY_TOKEN_URL + "?oauth_token=" + code + "&oauth_verifier=" + verifier);
-        consumer.sign(request);
-        HttpResponse response = httpClient.execute(request);
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+        BufferedReader rd = getBufferedReader(code, verifier);
         StringBuilder result = new StringBuilder();
         String line;
         while ((line = rd.readLine()) != null) {
@@ -37,9 +34,22 @@ public class X {
         System.out.println(result);
         return result.substring(result.indexOf("oauth_token_secret="+19, result.indexOf("&", result.indexOf("oauth_token_secret="+19)))) + "&" + result.substring(result.indexOf("oauth_token="+12, result.indexOf("&", result.indexOf("oauth_token="+12))));
     }
+
+    @NotNull
+    private BufferedReader getBufferedReader(String code, String verifier) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, IOException {
+        OAuthConsumer consumer = new CommonsHttpOAuthConsumer(consumerKey, apiKey);
+        HttpClient httpClient = new DefaultHttpClient();
+        String VERIFY_TOKEN_URL = "https://api.twitter.com/oauth/access_token";
+        HttpGet request = new HttpGet(VERIFY_TOKEN_URL + "?oauth_token=" + code + "&oauth_verifier=" + verifier);
+        consumer.sign(request);
+        HttpResponse response = httpClient.execute(request);
+        return new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+    }
+
     public String generateAuthorizationUrl() throws Exception {
         OAuthConsumer consumer = new CommonsHttpOAuthConsumer(consumerKey, apiKey);
         HttpClient httpClient = new DefaultHttpClient();
+        String REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
         HttpGet request = new HttpGet(REQUEST_TOKEN_URL);
         consumer.sign(request);
         HttpResponse response = httpClient.execute(request);

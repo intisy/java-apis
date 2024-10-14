@@ -4,12 +4,14 @@ import io.github.intisy.simple.logger.StaticLogger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public class Facebook {
     String redirectUri;
     String appId;
@@ -23,34 +25,22 @@ public class Facebook {
         return String.format("https://www.facebook.com/v19.0/dialog/oauth?client_id=%s&redirect_uri=%s&state=%s",
                 appId, redirectUri, UUID.randomUUID());
     }
-    public String buildUrl(String... permissions) {
+    public String buildUrl(String... permissions) throws UnsupportedEncodingException {
         return "https://www.facebook.com/v19.0/dialog/oauth" +
-                "?client_id=" + URLEncoder.encode(appId) +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri) +
+                "?client_id=" + URLEncoder.encode(appId, StandardCharsets.UTF_8.toString()) +
+                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString()) +
                 "&state=" + "facebook" +
                 "&scope=" + String.join(",", permissions);
     }
     public String exchangeCodeForToken(String authorizationCode) {
         try {
-
-            // Construct URL
             String urlString = String.format("https://graph.facebook.com/v19.0/oauth/access_token?client_id=%s&redirect_uri=%s&client_secret=%s&code=%s",
-                    appId, URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString().toString()), appSecret, authorizationCode);
-
-            // Create URL object
+                    appId, URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString()), appSecret, authorizationCode);
             URL url = new URL(urlString);
-
-            // Open connection
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-            // Set request method
             con.setRequestMethod("GET");
-
-            // Get response code
             int responseCode = con.getResponseCode();
             System.out.println("Response Code: " + responseCode);
-
-            // Read response
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -58,9 +48,7 @@ public class Facebook {
                 response.append(inputLine);
             }
             in.close();
-
-            // Print response
-            System.out.println("Response: " + response.toString());
+            System.out.println("Response: " + response);
         } catch (Exception e) {
             StaticLogger.exception(e);
         }

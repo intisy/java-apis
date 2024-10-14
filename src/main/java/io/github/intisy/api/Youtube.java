@@ -21,35 +21,41 @@ import java.util.Collections;
 
 @SuppressWarnings("deprecation")
 public class Youtube {
-    private final String APPLICATION_NAME = "Blizzity";
+    private final String applicationName;
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private final String clientId;
-    private final String clientSecret;
-    private final String redirectUri;
-    private final Collection<String> scopes;
-    public Youtube(String clientId, String clientSecret, String redirectUri, Collection<String> scopes) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.scopes = scopes;
+    private final YouTube youtube;
+    public Youtube(String applicationName, String clientId, String clientSecret, String redirectUri, Collection<String> scopes) throws GeneralSecurityException, IOException {
+        this.applicationName = applicationName;
+        youtube = getService(clientId, clientSecret, redirectUri, scopes);
     }
-    public YouTube getService() throws GeneralSecurityException, IOException {
+    public Youtube(String applicationName, Google google) throws GeneralSecurityException, IOException {
+        this.applicationName = applicationName;
+        youtube = getService(google);
+    }
+    public YouTube getService(String clientId, String clientSecret, String redirectUri, Collection<String> scopes) throws GeneralSecurityException, IOException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         Credential credential = new Google(clientId, clientSecret, redirectUri, scopes).authorize(httpTransport);
         return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+                .setApplicationName(applicationName)
+                .build();
+    }
+    public YouTube getService(Google google) throws GeneralSecurityException, IOException {
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credential = google.authorize(httpTransport);
+        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
+                .setApplicationName(applicationName)
                 .build();
     }
     public YouTube getService(Credential credential) throws GeneralSecurityException, IOException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+                .setApplicationName(applicationName)
                 .build();
     }
     public Triplet<String, String, String> info(Credential credential) throws GeneralSecurityException, IOException {
         YouTube youtube = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+                .setApplicationName(applicationName)
                 .build();
         YouTube.Channels.List channelRequest = youtube.channels().list(Collections.singletonList("snippet"));
         channelRequest.setMine(true);
@@ -66,7 +72,7 @@ public class Youtube {
     public String id(Credential credential) throws GeneralSecurityException, IOException {
         YouTube youtube = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+                .setApplicationName(applicationName)
                 .build();
         YouTube.Channels.List channelRequest = youtube.channels().list(Collections.singletonList("snippet"));
         channelRequest.setMine(true);
@@ -100,8 +106,6 @@ public class Youtube {
     }
     public void uploadVideo(File mediaFile, String title, String description, String status) {
         try {
-            YouTube youtubeService = getService();
-
             // Define the Video object, which will be uploaded as the request body.
             Video video = getVideo(title, description, status);
 
@@ -111,11 +115,11 @@ public class Youtube {
             mediaContent.setLength(mediaFile.length());
 
             // Define and execute the API request
-            YouTube.Videos.Insert request = youtubeService.videos()
+            YouTube.Videos.Insert request = youtube.videos()
                     .insert(Collections.singletonList("snippet,status"), video, mediaContent);
             Video response = request.execute();
             System.out.println(response);
-        } catch (GeneralSecurityException | IOException exception) {
+        } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }

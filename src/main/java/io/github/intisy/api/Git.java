@@ -103,7 +103,7 @@ public class Git {
         org.eclipse.jgit.api.Git git = new org.eclipse.jgit.api.Git(repository);
         git.fetch().setCredentialsProvider(credentialsProvider).call();
         List<Ref> branches = git.branchList().call();
-        if (branches.size() > 1 || !branches.get(0).getName().equals("main")) {
+        if (branches.size() > 1) {
             StaticLogger.warning("Repository has multiple branches, might pull wrong branch...");
             for (Ref branch : branches) {
                 StaticLogger.warning("Branch: " + branch.getName());
