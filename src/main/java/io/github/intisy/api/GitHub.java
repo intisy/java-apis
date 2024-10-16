@@ -46,6 +46,9 @@ public class GitHub {
     private final List<File> createdFiles = new ArrayList<>();
     private final List<File> modifyFiles = new ArrayList<>();
 
+    public GitHub(String repoOwner, String repoName, String accessToken) {
+        this(repoOwner, repoName, accessToken, false);
+    }
     public GitHub(String repoOwner, String repoName, String accessToken, boolean debug) {
         this.repoOwner = repoOwner;
         this.repoName = repoName;

@@ -13,6 +13,11 @@ public class Docker {
     public Docker(DockerClient dockerClient) {
         this.dockerClient = dockerClient;
     }
+
+    public DockerClient getDockerClient() {
+        return dockerClient;
+    }
+
     public void deleteDockerImage(String imageId) {
         dockerClient.removeImageCmd(imageId).withForce(true).exec();
     }
