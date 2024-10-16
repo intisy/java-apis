@@ -1,15 +1,16 @@
 package io.github.intisy.api;
 
 import io.github.intisy.simple.logger.StaticLogger;
-import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+@SuppressWarnings("unused")
 public class Git {
     String apiKey;
     String repoName;
@@ -47,8 +49,8 @@ public class Git {
             changes.get("deleted").addAll(status.getMissing());
 
             git.close();
-        } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+        } catch (IOException | GitAPIException exception) {
+            StaticLogger.exception(exception);
         }
         return changes;
     }
@@ -92,11 +94,46 @@ public class Git {
             git.close();
             return true;
 
-        } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+        } catch (IOException | GitAPIException exception) {
+            StaticLogger.exception(exception);
         }
         return false;
     }
+
+    public boolean doesRepoExist() {
+        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+        try (Repository repository = builder.setGitDir(path.toPath().resolve(".git").toFile())
+                .readEnvironment() // scan environment GIT_* variables
+                .findGitDir() // scan up the file system tree
+                .build()) {
+            return repository.getObjectDatabase().exists();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean isRepoUpToDate() {
+        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+        try (Repository repository = builder.setGitDir(path.toPath().resolve(".git").toFile())
+                .readEnvironment()
+                .findGitDir()
+                .build();
+             org.eclipse.jgit.api.Git git = new org.eclipse.jgit.api.Git(repository)) {
+            git.fetch().call();
+            String branch = repository.getBranch();
+            ObjectId localCommit = repository.resolve("refs/heads/" + branch);
+            ObjectId remoteCommit = repository.resolve("refs/remotes/origin/" + branch);
+            if (localCommit != null && remoteCommit != null) {
+                return localCommit.equals(remoteCommit);
+            } else {
+                return false;
+            }
+        } catch (IOException | GitAPIException exception) {
+            StaticLogger.exception(exception);
+            return false;
+        }
+    }
+
     public void pullRepository() throws GitAPIException, IOException {
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(repoOwner, apiKey);
         Repository repository = org.eclipse.jgit.api.Git.open(path).getRepository();
@@ -118,6 +155,17 @@ public class Git {
             StaticLogger.error("Pull failed: " + branches.get(0).getName());
         } else {
             StaticLogger.success("Successfully pulled repository.");
+        }
+    }
+    public void cloneOrPullRepository() throws GitAPIException, IOException {
+        if (doesRepoExist()) {
+            if (!isRepoUpToDate())
+                pullRepository();
+            else {
+                StaticLogger.note("Repository is up to date.");
+            }
+        } else {
+            cloneRepository();
         }
     }
 }
