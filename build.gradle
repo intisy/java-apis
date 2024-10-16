@@ -11,7 +11,7 @@ dependencies {
     githubImplementation "intisy:simple-variables:1.8"
     githubImplementation "intisy:simple-logger:1.14.3"
     implementation "com.h2database:h2:1.4.200"
-    implementation "org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r"
+    implementation "org.eclipse.jgit:org.eclipse.jgit:5.13.3.202401111512-r"
     implementation "com.sparkjava:spark-core:2.9.4"
     implementation "com.google.api-client:google-api-client:2.5.1"
     implementation "org.json:json:20240303"
