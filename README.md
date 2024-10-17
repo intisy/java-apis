@@ -14,7 +14,7 @@ Archives containing JAR files are available as [releases](https://github.com/int
   <dependency>
       <groupId>io.github.intisy</groupId>
       <artifactId>java-apis</artifactId>
-      <version>1.3.3</version>
+      <version>1.3.4</version>
   </dependency>
 ```
 
@@ -41,7 +41,7 @@ Archives containing JAR files are available as [releases](https://github.com/int
       }
   }
   dependencies {
-      implementation 'io.github.intisy:java-apis:1.3.3'
+      implementation 'io.github.intisy:java-apis:1.3.4'
   }
 ```
 
@@ -50,10 +50,10 @@ Archives containing JAR files are available as [releases](https://github.com/int
  * Gradle (inside the  or  file)
 ```groovy
   plugins {
-      id "io.github.intisy.java-apis" version "1.3.3"
+      id "io.github.intisy.java-apis" version "1.3.4"
   }
   dependencies {
-      githubImplementation "intisy:java-apis:1.3.3"
+      githubImplementation "intisy:java-apis:1.3.4"
   }
 ```
 
