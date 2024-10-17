@@ -19,8 +19,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.kohsuke.github.GHAsset;
-import org.kohsuke.github.GHRelease;
+import org.kohsuke.github.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -633,6 +632,20 @@ public class GitHub {
             StaticLogger.warning("Github exception while pulling asset: " + e.getMessage() + " (retrying in 5 seconds...)");
             ThreadUtils.sleep(5000);
             return getAsset(fileName);
+        }
+        throw new RuntimeException("Could not find an valid asset");
+    }
+    public String getLatestTag() {
+        StaticLogger.debug("Searching for newest jar file from " + repoName + " assets...");
+        try {
+            // Connect to GitHub using OAuth token
+            org.kohsuke.github.GitHub github = org.kohsuke.github.GitHub.connectUsingOAuth(accessToken);
+            GHRepository repo = github.getRepository(repoOwner + "/" + repoName);
+            PagedIterable<GHTag> tags = repo.listTags();
+            GHTag latestTag = tags.iterator().next();
+            return latestTag.getName();
+        } catch (IOException e) {
+            StaticLogger.warning("Github exception while pulling asset: " + e.getMessage());
         }
         throw new RuntimeException("Could not find an valid asset");
     }
