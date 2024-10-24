@@ -2,7 +2,7 @@ package io.github.intisy.api;
 
 import com.google.gson.Gson;
 import io.github.intisy.simple.logger.StaticLogger;
-import io.github.intisy.utils.custom.Database;
+import io.github.intisy.utils.custom.SQL;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -28,23 +28,22 @@ public class ChatGPT {
     ChatGPT(String apiKey) {
         this.apiKey = apiKey;
     }
-    public String prompt(Database database, String prompt) {
-        List<String> prompts = database.quickSelectData("server", "value", "token", "prompts");
-        JSONArray messageList;
-        if (prompts.isEmpty()) {
-            messageList = new JSONArray();
-        } else {
-            messageList = new JSONArray(prompts.get(0));
-        }
+    public JSONArray prompt(String prompt) {
+        return prompt(new JSONArray(), prompt);
+    }
+    public JSONArray prompt(JSONArray messageList, String prompt) {
         JSONObject message = new JSONObject();
         message.put("role", "user");
         message.put("content", prompt);
         messageList.put(message);
         JSONObject payload = new JSONObject();
-        payload.put("model", "gpt-3.5-turbo"); // model is important
+        payload.put("model", "gpt-4o");
         payload.put("messages", messageList);
-        payload.put("temperature", 0.9);
-        payload.put("top_p", 0.5); // experimental
+        payload.put("temperature", 2);
+        payload.put("max_tokens", 16383);
+        payload.put("top_p", 1);
+        payload.put("frequency_penalty", 2);
+        payload.put("presence_penalty", 0);
         StringEntity inputEntity = new StringEntity(payload.toString(), ContentType.APPLICATION_JSON);
         HttpPost post = new HttpPost("https://api.openai.com/v1/chat/completions");
         post.setEntity(inputEntity);
@@ -56,7 +55,7 @@ public class ChatGPT {
             if (resJson.has("error")) {
                 String errorMsg = resJson.getString("error");
                 StaticLogger.error("Chatbot API error: " + errorMsg);
-                return "Error: " + errorMsg;
+                return prompt(messageList, prompt);
             }
             JSONArray responseArray = resJson.getJSONArray("choices");
             List<String> responseList = new ArrayList<>();
@@ -72,14 +71,10 @@ public class ChatGPT {
             message.put("role", "assistant");
             message.put("content", jsonResponse);
             messageList.put(message);
-            if (database.quickSelectData("server", "token", "token", "prompts").isEmpty())
-                database.insertData("server", "token", "prompts", "value", messageList.toString());
-            else
-                database.updateData("server", "token", "prompts", "value", messageList.toString());
-            return jsonResponse;
+            return messageList;
         } catch (IOException | JSONException e) {
             StaticLogger.error("Error sending request:" + e.getMessage());
-            return "Error: " + e.getMessage();
+            return prompt(messageList, prompt);
         }
     }
 

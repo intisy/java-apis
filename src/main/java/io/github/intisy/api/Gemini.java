@@ -1,3 +1,4 @@
+/*
 package io.github.intisy.api;
 
 import com.google.cloud.vertexai.VertexAI;
@@ -6,7 +7,7 @@ import com.google.cloud.vertexai.generativeai.ChatSession;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.gson.*;
 import io.github.intisy.simple.logger.StaticLogger;
-import io.github.intisy.utils.custom.Database;
+import io.github.intisy.utils.custom.SQL;
 import io.github.intisy.utils.utils.StringUtils;
 
 import java.io.BufferedReader;
@@ -34,7 +35,7 @@ public class Gemini {
         builder.redirectErrorStream(true);
         watch(builder.start());
     }
-    public String prompt(Database database, String prompt) throws IOException {
+    public String prompt(SQL database, String prompt) throws IOException {
         if (chatSession == null) {
             try (VertexAI vertexAI = new VertexAI(projectId, location)) {
                 GenerationConfig generationConfig =
@@ -75,7 +76,7 @@ public class Gemini {
                 return prompt(database, prompt);
             }
         }
-        List<String> prompts = database.quickSelectData("server", "value", "token", "prompts");
+        List<String> prompts = database.selectData("server", "value", "token", "prompts");
         if (!prompts.isEmpty()) {
             List<Content> contentList = new ArrayList<>();
             JsonArray jsonArray = JsonParser.parseString(prompts.get(0)).getAsJsonArray();
@@ -111,7 +112,7 @@ public class Gemini {
         for (Content content : chatSession.getHistory()) {
             contentArray.add(content.toString().replace("\\\\", "\\"));
         }
-        if (database.quickSelectData("server", "token", "token", "prompts").isEmpty())
+        if (database.selectData("server", "token", "token", "prompts").isEmpty())
             database.insertData("server", "token", "prompts", "value", contentArray.toString());
         else
             database.updateData("server", "token", "prompts", "value", contentArray.toString());
@@ -137,4 +138,4 @@ public class Gemini {
         }
         return string.toString();
     }
-}
+}*/
